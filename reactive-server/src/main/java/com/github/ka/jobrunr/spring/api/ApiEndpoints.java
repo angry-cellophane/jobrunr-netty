@@ -1,10 +1,12 @@
 package com.github.ka.jobrunr.spring.api;
 
 import com.github.ka.jobrunr.spring.QueryParams;
+import org.jobrunr.dashboard.ui.model.RecurringJobUIModel;
 import org.jobrunr.jobs.states.StateName;
 import org.jobrunr.storage.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -15,11 +17,11 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 public class ApiEndpoints {
 
-    public static RouterFunction<ServerResponse> apiEndpoints(Api api) {
+    public static RouterFunction<ServerResponse> apiEndpoints(RunrApi api) {
         return RouterFunctions.route()
                 .GET("/jobs", accept(MediaType.APPLICATION_JSON), request -> {
                     var state = request.queryParam("state")
-                            .map(s -> StateName.valueOf(s.toLowerCase()))
+                            .map(s -> StateName.valueOf(s.toUpperCase()))
                             .orElse(StateName.ENQUEUED);
                     var pageRequest = QueryParams.parse(request.queryParams(), PageRequest.class);
                     return ServerResponse.ok().bodyValue(api.findJobByState(state, pageRequest));
@@ -47,7 +49,7 @@ public class ApiEndpoints {
                     return ServerResponse.status(HttpStatus.NO_CONTENT).build();
                 })
                 .GET("/recurring-jobs", accept(MediaType.APPLICATION_JSON), request -> {
-                    return ServerResponse.ok().bodyValue(api.getRecurringJobs());
+                    return ServerResponse.ok().body(BodyInserters.fromPublisher(api.getRecurringJobs(), RecurringJobUIModel.class));
                 })
                 .DELETE("/recurring-jobs/{id}", accept(MediaType.APPLICATION_JSON), request -> {
                     var id = request.pathVariable("id");

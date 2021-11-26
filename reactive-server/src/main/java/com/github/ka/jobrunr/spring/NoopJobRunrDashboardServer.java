@@ -10,7 +10,7 @@ import static org.jobrunr.dashboard.JobRunrDashboardWebServerConfiguration.using
 public class NoopJobRunrDashboardServer extends JobRunrDashboardWebServer {
 
     public NoopJobRunrDashboardServer(StorageProvider storageProvider, JsonMapper jsonMapper) {
-        this(storageProvider, jsonMapper, null);
+        this(storageProvider, jsonMapper, usingStandardDashboardConfiguration());
     }
 
     public NoopJobRunrDashboardServer(StorageProvider storageProvider, JsonMapper jsonMapper, int port) {

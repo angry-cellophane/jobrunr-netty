@@ -18,7 +18,7 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class Api {
+public class RunrApi {
 
     private final StorageProvider storageProvider;
     private final ProblemsManager problemsManager;
