@@ -14,14 +14,10 @@ import org.springframework.stereotype.Service;
 public class CollectAllData {
 
     final JobScheduler scheduler;
-    final Clients clients;
 
     @Recurring(id = "collect-all-data", cron = "*/5 * * * *")
     @Job(name = "collect all data")
     public void run() {
-        var ts = System.currentTimeMillis();
-        var requests = clients.findAllClients().stream()
-                        .map(c -> new ProcessClientJob.ProcessClientRequest(c.name(), ts));
-        scheduler.<ProcessClientJob, ProcessClientJob.ProcessClientRequest>enqueue(requests, (p, r) -> p.run(JobContext.Null, r));
+        log.info("done");
     }
 }
