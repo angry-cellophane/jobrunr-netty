@@ -1,0 +1,4 @@
+org:
+  jobrunr:
+    dashboard:
+      enabled: true

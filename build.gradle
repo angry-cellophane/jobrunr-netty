@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "io.freefair.lombok" version "6.3.0"
+    id "io.spring.dependency-management" version "1.0.11.RELEASE"
+}
+
+group = 'com.github.ka'
+version = '1.0'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.freefair.lombok'
+    apply plugin: 'io.spring.dependency-management'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}

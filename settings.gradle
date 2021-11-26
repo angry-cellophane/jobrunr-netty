@@ -1,0 +1,4 @@
+rootProject.name = 'jobrunr-sample'
+
+include ':server'
+include ':test-project'
