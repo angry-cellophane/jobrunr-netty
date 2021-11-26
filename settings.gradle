@@ -1,4 +1,4 @@
 rootProject.name = 'jobrunr-sample'
 
-include ':server'
+include ':reactive-server'
 include ':test-project'

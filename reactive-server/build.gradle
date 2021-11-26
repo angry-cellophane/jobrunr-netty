@@ -5,6 +5,7 @@ plugins {
 dependencies {
     api platform("org.springframework.boot:spring-boot-dependencies:${SPRING_BOOT_VERSION}")
     api 'org.jobrunr:jobrunr-spring-boot-starter:4.0.2'
+    api 'org.springframework.boot:spring-boot-starter-webflux'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
