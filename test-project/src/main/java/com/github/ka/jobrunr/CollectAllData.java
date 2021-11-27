@@ -15,7 +15,7 @@ public class CollectAllData {
 
     final JobScheduler scheduler;
 
-    @Recurring(id = "collect-all-data", cron = "*/5 * * * *")
+    @Recurring(id = "collect-all-data", cron = "*/1 * * * *")
     @Job(name = "collect all data")
     public void run() {
         log.info("done");

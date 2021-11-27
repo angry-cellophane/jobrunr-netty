@@ -1,5 +1,6 @@
 package com.github.ka.jobrunr.spring.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jobrunr.dashboard.ui.model.RecurringJobUIModel;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -56,11 +58,11 @@ public class RunrApi {
         log.info("problems with type " + type + " deleted");
     }
 
-    Flux<RecurringJobUIModel> getRecurringJobs() {
-         return Flux.fromIterable(storageProvider
-                    .getRecurringJobs()
-                 )
-                .map(RecurringJobUIModel::new);
+    List<RecurringJobUIModel> getRecurringJobs() {
+        return storageProvider.getRecurringJobs()
+                .stream()
+                .map(RecurringJobUIModel::new)
+                .collect(Collectors.toList());
     }
 
     void deleteRecurringJob(String jobId) {
