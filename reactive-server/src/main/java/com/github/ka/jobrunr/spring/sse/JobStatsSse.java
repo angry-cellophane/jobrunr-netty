@@ -7,7 +7,9 @@ import org.jobrunr.storage.listeners.JobStatsChangeListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -31,10 +33,15 @@ public class JobStatsSse {
 
     public JobStatsSse(StorageProvider storage) {
         this.storage = storage;
-        this.sink = Sinks.many().replay().limit(Duration.of(15, ChronoUnit.MINUTES));
+        this.sink = Sinks.many().replay().limit(Duration.of(30, ChronoUnit.MINUTES), Schedulers.boundedElastic());
         this.listener = new Listener();
 
         storage.addJobStorageOnChangeListener(this.listener);
+    }
+
+    @PostConstruct
+    public void collectJobStats() {
+        this.sink.tryEmitNext(storage.getJobStats());
     }
 
     @PreDestroy
