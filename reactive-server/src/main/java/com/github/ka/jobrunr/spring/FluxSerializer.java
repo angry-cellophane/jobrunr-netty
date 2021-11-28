@@ -7,6 +7,15 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 
+/**
+ * JobRunr serializer uses
+     .activateDefaultTypingAsProperty(LaissezFaireSubTypeValidator.instance,
+     ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS,
+     "@class");
+ * that doesn't work well with Fluxes.
+ * Jackson turns Flux.just(1,2,3) into ["ArrayList", 1,2,3]
+ * this serializer avoid the issue.
+ */
 final class FluxSerializer extends StdSerializer<Flux> {
 
     FluxSerializer() {
