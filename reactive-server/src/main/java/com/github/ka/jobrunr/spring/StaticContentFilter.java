@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono;
 public class StaticContentFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        log.info("request to " + exchange.getRequest().getPath().pathWithinApplication().value());
         if (exchange.getRequest().getPath().pathWithinApplication().value().startsWith("/dashboard")) {
             exchange.getResponse().getHeaders()
                     .add("Access-Control-Allow-Origin", "*");
