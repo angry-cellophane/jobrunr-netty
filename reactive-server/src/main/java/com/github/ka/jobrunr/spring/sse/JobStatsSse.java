@@ -9,6 +9,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
 import javax.annotation.PreDestroy;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -27,7 +31,7 @@ public class JobStatsSse {
 
     public JobStatsSse(StorageProvider storage) {
         this.storage = storage;
-        this.sink = Sinks.many().replay().latest();
+        this.sink = Sinks.many().replay().limit(Duration.of(15, ChronoUnit.MINUTES));
         this.listener = new Listener();
 
         storage.addJobStorageOnChangeListener(this.listener);

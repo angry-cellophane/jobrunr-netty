@@ -59,23 +59,12 @@ public class JobRunrReactiveConfiguration {
     }
 
     @Bean
-    RouterFunction<ServerResponse> staticFilesEndpoint() {
-        return RouterFunctions.route()
-                .resources("/dashboard/**", new ClassPathResource("org/jobrunr/dashboard/frontend/build/"))
-                .after(((request, response) -> {
-                    return ServerResponse.from(response)
-                            .header("Access-Control-Allow-Origin", "*")
-                            .build().block();
-                }))
-                .build();
-    }
-
-    @Bean
     RouterFunction<ServerResponse> endpoints(ApiEndpoints api, SseEndpoints sse) {
         return RouterFunctions.route()
-                .path("/api", () -> api.endpoints())
                 .GET("/", request -> permanentRedirect(URI.create("/dashboard/index.html")).build())
                 .GET("/dashboard", request -> permanentRedirect(URI.create("/dashboard/index.html")).build())
+                .resources("/dashboard/**", new ClassPathResource("org/jobrunr/dashboard/frontend/build/"))
+                .path("/api", () -> api.endpoints())
                 .path("/sse", () -> sse.endpoints())
                 .build();
     }
