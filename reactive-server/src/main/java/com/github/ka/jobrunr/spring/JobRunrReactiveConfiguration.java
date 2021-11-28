@@ -5,11 +5,16 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.github.ka.jobrunr.spring.api.ApiEndpoints;
 import com.github.ka.jobrunr.spring.sse.SseEndpoints;
 import org.jobrunr.dashboard.ui.model.problems.ProblemsManager;
+import org.jobrunr.spring.autoconfigure.JobRunrAutoConfiguration;
 import org.jobrunr.storage.StorageProvider;
 import org.jobrunr.utils.mapper.JsonMapper;
 import org.jobrunr.utils.mapper.jackson.JacksonJsonMapper;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.cors.CorsConfiguration;
@@ -54,26 +59,48 @@ public class JobRunrReactiveConfiguration {
     }
 
     @Bean
+    RouterFunction<ServerResponse> staticFilesEndpoint() {
+        return RouterFunctions.route()
+                .resources("/dashboard/**", new ClassPathResource("org/jobrunr/dashboard/frontend/build/"))
+                .after(((request, response) -> {
+                    return ServerResponse.from(response)
+                            .header("Access-Control-Allow-Origin", "*")
+                            .build().block();
+                }))
+                .build();
+    }
+
+    @Bean
     RouterFunction<ServerResponse> endpoints(ApiEndpoints api, SseEndpoints sse) {
         return RouterFunctions.route()
                 .path("/api", () -> api.endpoints())
-                .resources("/dashboard/**", new ClassPathResource("org/jobrunr/dashboard/frontend/build/"))
                 .GET("/", request -> permanentRedirect(URI.create("/dashboard/index.html")).build())
                 .GET("/dashboard", request -> permanentRedirect(URI.create("/dashboard/index.html")).build())
                 .path("/sse", () -> sse.endpoints())
                 .build();
     }
 
-    @Bean
-    ObjectMapper objectMapper() {
-        var f = ReflectionUtils.findField(JacksonJsonMapper.class, "objectMapper");
-        ReflectionUtils.makeAccessible(f);
-        var mapper = new JacksonJsonMapper(
-                new ObjectMapper()
-                        .registerModule(new SimpleModule() {{
-                            addSerializer(Flux.class, new FluxSerializer());
-                        }})
-        );
-        return (ObjectMapper) ReflectionUtils.getField(f, mapper);
+    @Configuration
+    @ConditionalOnClass(ObjectMapper.class)
+    @AutoConfigureBefore(JobRunrAutoConfiguration.class)
+    static class JacksonConfiguration {
+        @Bean
+        @Primary
+        ObjectMapper objectMapper(JacksonJsonMapper mapper) {
+            var f = ReflectionUtils.findField(JacksonJsonMapper.class, "objectMapper");
+            ReflectionUtils.makeAccessible(f);
+            return (ObjectMapper) ReflectionUtils.getField(f, mapper);
+        }
+
+        @Bean(name = "jobRunrJsonMapper")
+        @ConditionalOnMissingBean
+        public JsonMapper jacksonJsonMapper() {
+            return new JacksonJsonMapper(
+                    new ObjectMapper()
+                            .registerModule(new SimpleModule() {{
+                                addSerializer(Flux.class, new FluxSerializer());
+                            }})
+            );
+        }
     }
 }
